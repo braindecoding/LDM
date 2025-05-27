@@ -213,9 +213,9 @@ If you use this code in your research, please cite:
 ```bibtex
 @software{fmri_latent_diffusion,
   title={Latent Diffusion Model for fMRI Image Reconstruction},
-  author={Your Name},
+  author={Rolly Maulana Awangga},
   year={2025},
-  url={https://github.com/your-repo/LDM}
+  url={https://github.com/braindecoding/LDM}
 }
 ```
 
