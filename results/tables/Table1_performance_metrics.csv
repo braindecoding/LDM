@@ -1,0 +1,4 @@
+Model,Training_Loss,Accuracy_Percent,Correlation,Uncertainty_Correlation,Calibration_Ratio,Parameters_M
+Baseline,0.161138,10,0.001,-0.336,1.0,32.4
+Multi-Modal,0.043271,25,0.015,0.285,0.823,45.8
+Improved,0.00232,45,0.04,0.4085,0.657,58.2

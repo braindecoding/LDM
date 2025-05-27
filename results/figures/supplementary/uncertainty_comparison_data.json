@@ -1,0 +1,49 @@
+{
+  "comparison_data": {
+    "Original Model": {
+      "training_loss": 0.161138,
+      "uncertainty_error_correlation": -0.3361,
+      "mean_uncertainty": 1.1e-05,
+      "uncertainty_std": 0.0,
+      "calibration_ratio": 1.0,
+      "high_uncertainty_error": 0.238255,
+      "low_uncertainty_error": 0.237803,
+      "accuracy_estimate": 10.0,
+      "model_parameters": 32362705,
+      "training_epochs": 60,
+      "temperature": 1.0
+    },
+    "Improved Model": {
+      "training_loss": 0.00232,
+      "uncertainty_error_correlation": 0.4085,
+      "mean_uncertainty": 0.0362,
+      "uncertainty_std": 0.007037,
+      "calibration_ratio": 0.657,
+      "high_uncertainty_error": 0.041361,
+      "low_uncertainty_error": 0.027193,
+      "accuracy_estimate": 45.0,
+      "model_parameters": 58237254,
+      "training_epochs": 150,
+      "temperature": 0.971
+    }
+  },
+  "improvements": {
+    "training_loss": 98.56024029093076,
+    "uncertainty_error_correlation": 21.541207973817304,
+    "mean_uncertainty": 328990.9090909091,
+    "uncertainty_std": Infinity,
+    "calibration_ratio": 34.3,
+    "high_uncertainty_error": 82.64002854084909,
+    "low_uncertainty_error": 88.56490456386169,
+    "accuracy_estimate": 350.0,
+    "model_parameters": 79.951750015952,
+    "training_epochs": 150.0,
+    "temperature": -2.9000000000000026
+  },
+  "summary": {
+    "training_loss_improvement": "98.6%",
+    "uncertainty_correlation_improvement": "21.5%",
+    "accuracy_improvement": "350.0%",
+    "calibration_improvement": "34.3%"
+  }
+}

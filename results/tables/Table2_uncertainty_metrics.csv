@@ -1,0 +1,7 @@
+Metric,Mean,Std,Min,Max
+Epistemic_Uncertainty,0.024,0.008,0.012,0.045
+Aleatoric_Uncertainty,0.012,0.004,0.005,0.023
+Total_Uncertainty,0.036,0.012,0.018,0.068
+Confidence_Width,0.142,0.048,0.067,0.289
+Entropy,0.089,0.031,0.034,0.156
+Mutual_Information,0.023,0.009,0.008,0.045

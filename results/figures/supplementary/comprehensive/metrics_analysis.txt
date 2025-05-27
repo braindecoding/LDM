@@ -1,0 +1,28 @@
+Brain LDM Evaluation Results
+===============================
+
+Image Quality Metrics:
+  PSNR: 5.4908 dB
+  SSIM: 0.0071
+  Correlation: 0.0201
+
+Basic Metrics:
+  MSE: 0.282439
+  MAE: 0.518454
+  RMSE: 0.531450
+
+Evaluation Info:
+  Samples: 10
+  Image size: 28×28
+  Model: Brain LDM
+
+Metric Interpretations:
+  PSNR: Higher is better (>20 dB is good, >30 dB is excellent)
+  SSIM: Higher is better (0-1 scale, >0.5 is good, >0.8 is excellent)
+  Correlation: Higher is better (-1 to 1 scale, >0.5 is good)
+  MSE/MAE/RMSE: Lower is better
+
+Performance Assessment:
+  PSNR 5.5 dB: Poor
+  SSIM 0.007: Poor
+  Correlation 0.020: Poor

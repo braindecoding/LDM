@@ -1,0 +1,16 @@
+data:
+  augmentation_factor: 5
+  normalization: robust
+model:
+  fmri_dim: 3092
+  guidance_scale: 7.5
+  hidden_dim: 512
+  image_size: 28
+  semantic_guidance: true
+  text_guidance: true
+  type: multimodal_brain_ldm
+training:
+  batch_size: 4
+  epochs: 80
+  learning_rate: 8.0e-05
+  weight_decay: 5.0e-06
