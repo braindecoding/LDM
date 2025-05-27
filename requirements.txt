@@ -10,8 +10,14 @@ pyyaml>=6.0
 matplotlib>=3.5.0
 seaborn>=0.11.0
 
-# Optional dependencies (install if needed)
+# Advanced metrics dependencies (optional but recommended)
+scikit-image>=0.19.0  # For SSIM computation
+torchvision>=0.15.0   # For FID computation
+
+# Optional dependencies (install if needed for enhanced functionality)
 # wandb>=0.12.0  # For experiment tracking
+# lpips>=0.1.4  # For LPIPS perceptual metric
+# clip-by-openai>=1.0  # For CLIP score
 # einops>=0.6.0  # For tensor operations
 # accelerate>=0.20.0  # For distributed training
 # diffusers>=0.18.0  # For additional diffusion utilities
