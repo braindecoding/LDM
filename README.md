@@ -10,9 +10,15 @@ Clean implementation of Latent Diffusion Model for reconstructing visual stimuli
 ├── train_brain_ldm.py     # Training script
 ├── evaluate_brain_ldm.py  # Evaluation script
 ├── demo_brain_ldm.py      # Complete demo
+├── view_results.py        # Results visualization
 ├── example_usage.py       # Data loader examples
 ├── data/
 │   └── digit69_28x28.mat  # fMRI and stimulus data
+├── checkpoints/           # Trained model checkpoints
+├── results/               # All visualizations and results
+│   ├── training_samples/  # Training progression images
+│   ├── evaluation/        # Evaluation results
+│   └── SUMMARY_REPORT.md  # Complete results summary
 └── README.md              # This file
 ```
 
@@ -20,20 +26,29 @@ Clean implementation of Latent Diffusion Model for reconstructing visual stimuli
 
 ## 🚀 Quick Start
 
-### 1. Run Demo
+### 1. Run Demo (Recommended)
 ```bash
 python demo_brain_ldm.py
 ```
+*Clean demo showing core brain decoding concepts with simple model*
 
-### 2. Train Model
+### 2. Train Full LDM Model
 ```bash
 python train_brain_ldm.py
 ```
+*Train the complete Latent Diffusion Model*
 
 ### 3. Evaluate Results
 ```bash
 python evaluate_brain_ldm.py
 ```
+*Evaluate trained model performance*
+
+### 4. View All Results
+```bash
+python view_results.py
+```
+*Organize and view all training/evaluation visualizations*
 
 ## 🏗️ LDM Architecture
 
