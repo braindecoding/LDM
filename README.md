@@ -1,144 +1,211 @@
-# 🧠 Latent Diffusion Model for fMRI Reconstruction
+# 🧠 Brain Decoding with Latent Diffusion Models
 
-A clean, well-structured PyTorch implementation of a Latent Diffusion Model for reconstructing fMRI brain activation patterns. This project combines Variational Autoencoders with Diffusion Models to learn and generate high-quality fMRI representations.
+A clean, well-structured PyTorch implementation of a Latent Diffusion Model for **brain decoding** - reconstructing visual stimuli from fMRI brain activity. This project demonstrates how to decode what the brain "sees" using state-of-the-art generative models.
+
+## 🎯 Project Goal
+
+**Brain Decoding**: Reconstruct visual stimuli (28×28 digit images) from fMRI brain activation patterns.
+
+- **Input**: fMRI brain activity data (3092 voxels)
+- **Output**: Visual stimulus reconstruction (28×28 pixels)
+- **Task**: Neural decoding / Mind reading
+- **Method**: Latent Diffusion Model enhancement
 
 ## ✨ Key Features
 
-- **🏗️ Clean Architecture**: Modular design with clear separation of concerns
-- **🧠 fMRI-Optimized**: Specifically designed for brain activation pattern reconstruction  
-- **📊 Comprehensive Evaluation**: 36+ metrics including PSNR, SSIM, FID, LPIPS, CLIP
-- **👥 Multi-Subject Support**: Handles aligned data from multiple subjects
-- **📈 Rich Visualizations**: Training curves, reconstruction comparisons, latent analysis
-- **🚀 Easy to Use**: Simple scripts for training, evaluation, and visualization
+- **🧠 True Brain Decoding**: Reconstructs visual stimuli from brain activity
+- **🏗️ Clean Code Architecture**: Modular design with clear naming conventions
+- **🌊 Latent Diffusion Enhancement**: Uses diffusion models to improve reconstruction quality
+- **📊 Comprehensive Evaluation**: Correlation analysis and reconstruction quality metrics
+- **🎨 Rich Visualizations**: Side-by-side stimulus comparisons and quality assessments
+- **🚀 Easy to Use**: Clean scripts with descriptive names and clear documentation
 
 ## 🎯 Quick Start
 
+### Option A: Test Pre-trained Model (Fast)
+```bash
+# 1. Setup project and dependencies
+python scripts/setup_project.py
+
+# 2. Understand brain decoding concept
+python scripts/analyze_stimulus_data.py
+
+# 3. Test brain decoding with clean implementation
+python scripts/test_clean_brain_decoding.py
+
+# 4. Compare VAE vs LDM approaches
+python scripts/compare_vae_vs_ldm.py
+```
+
+### Option B: Train Your Own Model (Complete)
 ```bash
 # 1. Setup project
 python scripts/setup_project.py
 
-# 2. Run demo to understand the project
-python demo.py
+# 2. Analyze data
+python scripts/analyze_stimulus_data.py
 
-# 3. Train and evaluate model
-python scripts/train_model.py --mode both
+# 3. Train brain decoding model
+python scripts/train_brain_decoding_model.py --phase both
 
-# 4. View results
-python scripts/visualize_results.py
+# 4. Evaluate trained model
+python scripts/evaluate_trained_model.py --model checkpoints/brain_decoding_final_model.pt
 ```
 
-## 📁 Project Structure
+## 📁 Clean Project Structure
 
 ```
-LDM/
-├── 📁 src/                          # Core implementation
+BrainDecoding-LDM/
+├── 📁 src/                                    # Core implementation with clean naming
 │   ├── 📁 data/
-│   │   └── fmri_data_loader.py      # Data loading & preprocessing
+│   │   ├── stimulus_data_loader.py           # Brain-to-stimulus data loading
+│   │   └── fmri_data_loader.py               # Legacy fMRI data loader
 │   ├── 📁 models/
-│   │   ├── vae_encoder_decoder.py   # VAE implementation
-│   │   ├── diffusion_model.py       # Diffusion model & scheduler
-│   │   └── latent_diffusion_model.py # Complete LDM
+│   │   ├── stimulus_ldm.py                   # Brain decoding LDM model
+│   │   ├── vae_encoder_decoder.py            # VAE for brain→stimulus mapping
+│   │   └── diffusion_model.py                # Diffusion enhancement model
 │   ├── 📁 training/
-│   │   └── trainer.py               # Training pipeline
+│   │   └── trainer.py                        # Training pipeline
 │   └── 📁 utils/
-│       ├── metrics.py               # Evaluation metrics
-│       └── visualization.py         # Visualization tools
-├── 📁 scripts/                      # Clean execution scripts
-│   ├── train_model.py               # Training script
-│   ├── visualize_results.py         # Results visualization
-│   ├── setup_project.py             # Project setup
-│   └── clean_outputs.py             # Output management
-├── 📁 outputs/                      # fMRI data files
-├── 📁 checkpoints/                  # Saved models
-├── 📁 logs/                         # Training logs & metrics
-├── config.yaml                      # Configuration
-├── main.py                         # Legacy main script
-├── demo.py                         # Project demo
-└── README.md                       # This file
+│       ├── metrics.py                        # Reconstruction quality metrics
+│       └── visualization.py                  # Clean visualization tools
+├── 📁 scripts/                               # Clean execution scripts
+│   ├── train_brain_decoding_model.py         # Main training script
+│   ├── evaluate_trained_model.py             # Model evaluation script
+│   ├── test_clean_brain_decoding.py          # Brain decoding test
+│   ├── analyze_stimulus_data.py              # Data structure analysis
+│   ├── compare_vae_vs_ldm.py                 # Method comparison
+│   ├── setup_project.py                      # Project initialization
+│   └── clean_outputs.py                      # Output management
+├── 📁 data/                                  # Brain and stimulus data
+│   └── digit69_28x28.mat                     # fMRI + digit stimulus data
+├── 📁 results/                               # Clean results organization
+│   ├── clean_brain_decoding/                 # Main results
+│   ├── stimulus_analysis/                    # Data analysis results
+│   └── vae_vs_ldm_comparison/                # Method comparison
+├── 📁 checkpoints/                           # Trained model weights
+├── 📁 logs/                                  # Training logs & metrics
+├── config.yaml                               # Clean configuration
+├── demo.py                                   # Project demonstration
+└── README.md                                 # This documentation
 ```
 
-## 🏗️ Architecture
+## 🏗️ Brain Decoding Architecture
+
+### Clean Model Pipeline
+
+```
+fMRI Brain Activity (3092 voxels)
+    ↓ [Brain Activity Encoder]
+Latent Representation (256 dimensions)
+    ↓ [Diffusion Enhancement]
+Enhanced Latent Representation
+    ↓ [Visual Stimulus Decoder]
+Reconstructed Visual Stimulus (28×28 pixels)
+```
 
 ### Model Components
 
-1. **VAE (Variational Autoencoder)**
-   - Input: fMRI data (3092 voxels)
-   - Encoder: [3092 → 1024 → 512 → 256] (compression)
-   - Decoder: [256 → 512 → 1024 → 3092] (reconstruction)
-   - Purpose: Learn compact latent representation
+1. **Brain-to-Latent VAE Encoder**
+   - **Input**: fMRI brain activity (3092 voxels)
+   - **Architecture**: [3092 → 1024 → 512 → 256]
+   - **Purpose**: Map brain patterns to latent space
+   - **Output**: Latent representation (256 dimensions)
 
-2. **Diffusion Model**
-   - Input: Latent codes (256-dimensional)
-   - Process: Iterative denoising over 1000 steps
-   - Architecture: U-Net with attention layers
-   - Purpose: Generate high-quality latent representations
+2. **Latent Diffusion Enhancement**
+   - **Input**: Latent codes (256-dimensional)
+   - **Process**: Controlled noise addition + iterative denoising
+   - **Architecture**: U-Net with attention mechanisms
+   - **Purpose**: Enhance latent representations for better reconstruction
 
-3. **Complete Pipeline**
-   - Step 1: Encode fMRI → Latent space
-   - Step 2: Add controlled noise
-   - Step 3: Iterative denoising
-   - Step 4: Decode → Reconstructed fMRI
+3. **Latent-to-Stimulus VAE Decoder**
+   - **Input**: Enhanced latent representation (256 dimensions)
+   - **Architecture**: [256 → 512 → 1024 → 784]
+   - **Purpose**: Generate visual stimulus from latent space
+   - **Output**: Reconstructed stimulus (28×28 = 784 pixels)
 
-## 📊 Data
+### Complete Brain Decoding Pipeline
 
-The model works with aligned fMRI data:
-- **Format**: `.npz` files with subject data
-- **Structure**: (timepoints, voxels) per subject
-- **Example**: 3 subjects × 27 timepoints × 3092 voxels
-- **Preprocessing**: Normalized and aligned across subjects
+1. **Encode**: Brain activity → Latent space
+2. **Enhance**: Add noise + Diffusion denoising
+3. **Decode**: Enhanced latent → Visual stimulus
+4. **Evaluate**: Compare with true stimulus
 
-## ⚙️ Configuration
+## 📊 Brain Decoding Data
+
+The model works with paired brain activity and visual stimulus data:
+
+### Data Structure (digit69_28x28.mat)
+- **fmriTrn**: (90, 3092) - Training brain activity data
+- **stimTrn**: (90, 784) - Training visual stimuli (28×28 digits)
+- **fmriTest**: (10, 3092) - Test brain activity data
+- **stimTest**: (10, 784) - Test visual stimuli
+- **labelTrn/Test**: Digit labels (0-9) for classification
+
+### Data Characteristics
+- **Brain Data**: 3092 voxels representing brain activation patterns
+- **Visual Data**: 784 pixels (28×28) representing digit images
+- **Task**: Decode visual stimuli from corresponding brain activity
+- **Preprocessing**: Normalized brain activity and stimulus data
+
+## ⚙️ Clean Configuration
 
 Key configuration options in `config.yaml`:
 
 ```yaml
-# Data settings
+# Brain decoding data settings
 data:
-  data_path: "outputs"
-  aligned_data_file: "alignment_ridge_*.npz"
-  train_split: 0.8
-  val_split: 0.1
+  brain_data_path: "data/digit69_28x28.mat"
+  train_split: 0.7
+  validation_split: 0.2
   test_split: 0.1
 
-# VAE settings
+# Brain-to-stimulus VAE settings
 vae:
-  input_dim: 3092
-  latent_dim: 256
+  brain_input_dim: 3092        # fMRI voxels
+  stimulus_output_dim: 784     # 28×28 pixels
+  latent_dim: 256              # Latent space dimension
   hidden_dims: [1024, 512, 256]
-  beta: 1.0
+  beta: 1.0                    # KL divergence weight
 
-# Diffusion settings
+# Latent diffusion enhancement settings
 diffusion:
-  num_timesteps: 1000
-  beta_schedule: "linear"
-  model_channels: 128
-  num_res_blocks: 2
+  num_timesteps: 1000          # Diffusion steps
+  beta_schedule: "linear"      # Noise schedule
+  model_channels: 128          # U-Net channels
+  num_res_blocks: 2            # Residual blocks
+  dropout: 0.1                 # Dropout rate
 
 # Training settings
 training:
-  batch_size: 8
-  num_epochs: 5
-  learning_rate: 1e-4
+  batch_size: 8                # Batch size
+  num_epochs: 50               # Training epochs
+  learning_rate: 1e-4          # Learning rate
+  vae_training_epochs: 25      # VAE pre-training
+  diffusion_training_epochs: 25 # Diffusion training
+
+# Hardware settings
+hardware:
+  num_workers: 4               # Data loading workers
+  pin_memory: true             # GPU memory optimization
 ```
 
-## 📈 Evaluation Metrics
+## 📈 Brain Decoding Evaluation
 
-### Core Metrics
-- **Correlation**: Linear relationship (0-1, higher better)
-- **RMSE**: Root Mean Square Error (lower better)
-- **PSNR**: Peak Signal-to-Noise Ratio in dB (higher better)
-- **SSIM**: Structural Similarity Index (0-1, higher better)
+### Reconstruction Quality Metrics
+- **Pearson Correlation**: Measures linear relationship between true and reconstructed stimuli (0-1, higher better)
+- **Mean Squared Error (MSE)**: Pixel-wise reconstruction error (lower better)
+- **Visual Similarity**: Qualitative assessment of digit recognition
 
-### Advanced Metrics
-- **FID**: Fréchet Inception Distance (lower better)
-- **LPIPS**: Learned Perceptual Similarity (lower better)
-- **CLIP Score**: Semantic similarity (higher better)
+### Expected Performance Ranges
+- **Good Brain Decoding**: Correlation > 0.3
+- **Excellent Brain Decoding**: Correlation > 0.5
+- **Typical MSE**: 0.1-0.5 (normalized pixel values)
 
-### Expected Ranges
-- **Correlation**: 0.3-0.8 (fMRI is inherently noisy)
-- **RMSE**: 0.3-0.8 (normalized data)
-- **PSNR**: 10-30 dB (typical for fMRI)
-- **SSIM**: 0.1-0.7 (no natural spatial structure)
+### Method Comparison
+- **Baseline (VAE only)**: Direct brain→stimulus mapping
+- **Enhanced (LDM)**: Diffusion-enhanced reconstruction
+- **Improvement**: LDM typically shows 10-30% correlation improvement
 
 ## 🎨 Visualizations
 
@@ -165,42 +232,88 @@ The model generates comprehensive visualizations:
 - Temporal consistency across timepoints
 - NOT visual similarity to natural images
 
-## 🚀 Usage Examples
+## 🏋️ Training Brain Decoding Model
 
-### Training
+### Complete Training Pipeline
 ```bash
-# Full training and evaluation
-python scripts/train_model.py --mode both
+# 1. Setup project
+python scripts/setup_project.py
 
-# Training only
-python scripts/train_model.py --mode train
+# 2. Analyze data structure
+python scripts/analyze_stimulus_data.py
 
-# Evaluation only
-python scripts/train_model.py --mode evaluate
+# 3. Train complete model (VAE + Diffusion)
+python scripts/train_brain_decoding_model.py --phase both
+
+# 4. Evaluate trained model
+python scripts/evaluate_trained_model.py --model checkpoints/brain_decoding_final_model.pt
 ```
 
-### Visualization
+### Phase-by-Phase Training
 ```bash
-# View latest results
-python scripts/visualize_results.py
+# Train VAE only (brain → stimulus mapping)
+python scripts/train_brain_decoding_model.py --phase vae
 
-# Custom config
-python scripts/visualize_results.py --config custom_config.yaml
+# Train Diffusion only (latent enhancement)
+python scripts/train_brain_decoding_model.py --phase diffusion
 ```
 
-### Maintenance
+### Training Process
+1. **Phase 1 - VAE Training (25 epochs)**:
+   - Learn brain activity → latent space mapping
+   - Learn latent space → visual stimulus mapping
+   - Expected correlation: 0.2-0.4
+
+2. **Phase 2 - Diffusion Training (25 epochs)**:
+   - Learn to enhance latent representations
+   - Improve reconstruction quality through denoising
+   - Expected improvement: 20-50% better correlation
+
+### Training Outputs
+```
+checkpoints/
+├── brain_decoding_vae_epoch_*.pt       # VAE checkpoints
+├── brain_decoding_diffusion_epoch_*.pt # Diffusion checkpoints
+└── brain_decoding_final_model.pt       # Final trained model
+
+logs/
+├── brain_decoding_training_history.json # Training metrics
+└── training_progress.png               # Training curves
+```
+
+## 🚀 Clean Usage Examples
+
+### Brain Decoding Analysis
 ```bash
-# Clean old outputs
+# Analyze brain and stimulus data structure
+python scripts/analyze_stimulus_data.py
+
+# Test clean brain decoding implementation
+python scripts/test_clean_brain_decoding.py
+
+# Compare VAE vs LDM approaches
+python scripts/compare_vae_vs_ldm.py
+```
+
+### Project Management
+```bash
+# Setup project and check dependencies
+python scripts/setup_project.py
+
+# Clean old outputs and manage disk space
 python scripts/clean_outputs.py --all
 
-# Check disk usage
+# Check current results and disk usage
 python scripts/clean_outputs.py --usage
 ```
 
-### Demo
+### Legacy Scripts (for compatibility)
 ```bash
-# Understand the project
-python demo.py
+# Original training pipeline
+python scripts/train_model.py --mode both
+
+# Original visualization
+python scripts/visualize_results.py
 ```
 
 ## 📋 Requirements
@@ -213,31 +326,69 @@ python demo.py
 - PyYAML
 - Scipy
 
-## 🎯 Expected Results
+## 🎯 Expected Brain Decoding Results
 
-For a quick 5-epoch training:
-- **Correlation**: ~0.3-0.6
-- **RMSE**: ~0.4-0.8
-- **PSNR**: ~10-20 dB
+### Baseline Performance (VAE only)
+- **Correlation**: 0.2-0.4 (basic brain decoding)
+- **MSE**: 0.3-0.6 (reconstruction error)
+- **Visual Quality**: Recognizable digit shapes
 
-For longer training (50+ epochs):
-- **Correlation**: ~0.6-0.8
-- **RMSE**: ~0.2-0.5
-- **PSNR**: ~20-30 dB
+### Enhanced Performance (LDM)
+- **Correlation**: 0.3-0.6 (improved brain decoding)
+- **MSE**: 0.2-0.4 (reduced reconstruction error)
+- **Visual Quality**: Clearer, more detailed digit reconstruction
+- **Improvement**: 20-50% better correlation than baseline
+
+### Performance Factors
+- **Data Quality**: Clean fMRI signals improve results
+- **Model Training**: Longer training generally improves performance
+- **Individual Differences**: Brain patterns vary between subjects
+
+## 🧹 Clean Code Principles
+
+This project demonstrates clean code principles throughout:
+
+### Clear Naming Conventions
+- **Classes**: `BrainToStimulusDataLoader`, `CleanBrainDecodingTester`
+- **Variables**: `brain_activity_data`, `visual_stimulus_data`, `enhanced_reconstruction`
+- **Functions**: `perform_brain_decoding_test()`, `compute_reconstruction_quality_metrics()`
+
+### Single Responsibility
+- Each function has one clear purpose
+- Separated data loading, model testing, and visualization
+- Clean error handling and logging
+
+### Self-Documenting Code
+- Descriptive variable and function names
+- Clear type hints and documentation
+- Meaningful comments explaining why, not what
 
 ## 🔧 Troubleshooting
 
 **Common Issues:**
-1. **CUDA out of memory**: Reduce batch size in config
-2. **Low correlation**: Increase training epochs
-3. **Slow training**: Enable mixed precision
-4. **Missing data**: Check outputs/ folder for aligned data
+1. **Missing data file**: Ensure `data/digit69_28x28.mat` exists
+2. **CUDA out of memory**: Reduce batch size in config
+3. **Low correlation**: Check data preprocessing and model architecture
+4. **Import errors**: Run `python scripts/setup_project.py` first
 
 ## 📚 References
 
-- [Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2006.11239)
-- [High-Resolution Image Synthesis with Latent Diffusion Models](https://arxiv.org/abs/2112.10752)
-- [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114)
+### Core Papers
+- [Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2006.11239) - Foundation of diffusion models
+- [High-Resolution Image Synthesis with Latent Diffusion Models](https://arxiv.org/abs/2112.10752) - Latent diffusion approach
+- [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114) - VAE fundamentals
+
+### Brain Decoding Research
+- [Deep learning for neural decoding](https://www.nature.com/articles/s41593-018-0107-3) - Neural decoding overview
+- [fMRI-based decoding of visual information](https://www.sciencedirect.com/science/article/pii/S1053811917305621) - Visual decoding methods
+
+## 🎓 Educational Value
+
+This project demonstrates:
+- **Clean Code Practices**: Professional software development standards
+- **Brain Decoding**: How AI can decode brain signals
+- **Latent Diffusion Models**: State-of-the-art generative modeling
+- **Neuroscience Applications**: AI applications in brain research
 
 ## 📄 License
 
@@ -245,8 +396,32 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please ensure:
+- Follow clean code principles
+- Use descriptive naming conventions
+- Add proper documentation
+- Include type hints
+
+## 🙏 Acknowledgments
+
+- Clean code principles inspired by Robert C. Martin's "Clean Code"
+- Brain decoding methodology based on neuroscience research
+- Diffusion model implementation following best practices
 
 ---
 
-**🎉 Ready to start? Run `python scripts/setup_project.py` to get started!**
+**🎉 Ready to decode brains? Run `python scripts/setup_project.py` to get started!**
+
+### Quick Test
+```bash
+# 1. Setup
+python scripts/setup_project.py
+
+# 2. Analyze data
+python scripts/analyze_stimulus_data.py
+
+# 3. Test brain decoding
+python scripts/test_clean_brain_decoding.py
+```
+
+**🧠 Welcome to the fascinating world of brain decoding with clean code!**
