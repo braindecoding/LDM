@@ -1,0 +1,9 @@
+Brain LDM Evaluation Results
+==============================
+
+MSE: 0.273371
+MAE: 0.512004
+RMSE: 0.522849
+Correlation: -0.0030
+SSIM: 0.0041
+Samples: 10
