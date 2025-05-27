@@ -48,7 +48,7 @@ python evaluate_brain_ldm.py
 ```bash
 python view_results.py
 ```
-*Organize and view all training/evaluation visualizations*
+*Organize and view all training/evaluation visualizations* 
 
 ## 🏗️ LDM Architecture
 
