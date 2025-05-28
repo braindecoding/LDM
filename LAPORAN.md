@@ -75,67 +75,94 @@ Monte Carlo Dropout merupakan metode praktis dan efektif untuk estimasi epistemi
 Model terdiri dari komponen-komponen berikut:
 
 #### 3.1.1 fMRI Encoder
-```python
-fMRI_Encoder = Sequential(
-    Linear(3092 → 1024),
-    LayerNorm(1024),
-    ReLU(),
-    Dropout(0.3),
-    Linear(1024 → 512),
-    LayerNorm(512),
-    ReLU(),
-    Dropout(0.2)
-)
+fMRI encoder dirancang sebagai fully connected network dengan arsitektur hierarkis untuk mengekstrak representasi yang meaningful dari sinyal fMRI high-dimensional. Arsitektur terdiri dari dua hidden layers dengan dimensi 1024 dan 512 neuron, menggunakan layer normalization untuk stabilitas training dan dropout dengan rate 0.3 dan 0.2 untuk regularization. Fungsi aktivasi ReLU digunakan untuk mempertahankan non-linearity sambil menghindari vanishing gradient problem.
+
+**Algoritma 1: fMRI Encoding Process**
+```
+Input: fMRI_signal ∈ ℝ^3092
+1. x₁ ← Linear(fMRI_signal, 3092 → 1024)
+2. x₁ ← LayerNorm(x₁)
+3. x₁ ← ReLU(x₁)
+4. x₁ ← Dropout(x₁, p=0.3)
+5. x₂ ← Linear(x₁, 1024 → 512)
+6. x₂ ← LayerNorm(x₂)
+7. x₂ ← ReLU(x₂)
+8. output ← Dropout(x₂, p=0.2)
+Output: encoded_features ∈ ℝ^512
 ```
 
 #### 3.1.2 Text Encoder
 Text encoder menggunakan arsitektur transformer-based untuk memproses deskripsi natural language yang memberikan konteks semantik untuk proses rekonstruksi. Komponen ini terdiri dari embedding layer dengan vocabulary size 10,000 yang dapat menangani berbagai deskripsi tekstual. Arsitektur transformer dengan 4 layer dan 8 attention heads memungkinkan pemahaman konteks yang mendalam dari input tekstual. Global average pooling digunakan untuk menghasilkan representasi fixed-size yang dapat diintegrasikan dengan modalitas lain.
 
 #### 3.1.3 Cross-Modal Attention
-Cross-modal attention merupakan komponen kunci yang memungkinkan integrasi efektif antara features dari multiple modalities. Mekanisme ini menggunakan multi-head attention untuk menangkap hubungan kompleks antara representasi fMRI, text, dan semantic embeddings.
-```python
-CrossModalAttention = MultiHeadAttention(
-    embed_dim=512,
-    num_heads=8,
-    dropout=0.3,
-    temperature_scaling=True
-)
+Cross-modal attention merupakan komponen kunci yang memungkinkan integrasi efektif antara features dari multiple modalities. Mekanisme ini menggunakan multi-head attention dengan 8 attention heads untuk menangkap hubungan kompleks antara representasi fMRI, text, dan semantic embeddings. Temperature scaling diintegrasikan untuk kalibrasi uncertainty yang lebih baik.
+
+**Algoritma 2: Cross-Modal Attention Mechanism**
+```
+Input: fMRI_features ∈ ℝ^512, text_features ∈ ℝ^512, semantic_features ∈ ℝ^512
+1. Q ← Linear(fMRI_features)  // Query dari fMRI
+2. K ← Concat([text_features, semantic_features])  // Key dari modalitas lain
+3. V ← Concat([text_features, semantic_features])  // Value dari modalitas lain
+4. attention_weights ← Softmax(QK^T / √d_k)
+5. attended_features ← attention_weights × V
+6. fused_features ← LayerNorm(fMRI_features + attended_features)
+7. output ← Dropout(fused_features, p=0.3)
+Output: integrated_features ∈ ℝ^512
 ```
 
 ### 3.2 Uncertainty Quantification
 
 #### 3.2.1 Monte Carlo Dropout
-```python
-def monte_carlo_sampling(model, x, n_samples=30):
-    model = enable_dropout_for_uncertainty(model)
-    samples = []
-    for i in range(n_samples):
-        x_noisy = x + torch.randn_like(x) * 0.05
-        sample = model(x_noisy, add_noise=True)
-        samples.append(sample)
-    return torch.stack(samples)
+Monte Carlo dropout diimplementasikan untuk estimasi epistemic uncertainty dengan mengaktifkan dropout layers selama inference. Metode ini melakukan multiple forward passes dengan noise injection yang berbeda untuk menghasilkan distribusi prediksi yang dapat digunakan untuk menghitung uncertainty metrics.
+
+**Algoritma 3: Monte Carlo Uncertainty Estimation**
+```
+Input: model, fMRI_input, n_samples=30
+1. Enable dropout layers untuk uncertainty mode
+2. Initialize samples_list ← []
+3. For i = 1 to n_samples:
+   a. noise_level ← 0.02 + (i × 0.001)
+   b. noisy_input ← fMRI_input + Gaussian_noise(σ=noise_level)
+   c. sample_i ← model.forward(noisy_input)
+   d. samples_list.append(sample_i)
+4. samples_tensor ← Stack(samples_list)
+5. mean_prediction ← Mean(samples_tensor, dim=0)
+6. epistemic_uncertainty ← Std(samples_tensor, dim=0)
+7. aleatoric_uncertainty ← Var(samples_tensor, dim=0)
+Output: mean_prediction, epistemic_uncertainty, aleatoric_uncertainty
 ```
 
 #### 3.2.2 Temperature Scaling
-Kalibrasi uncertainty menggunakan learnable temperature parameter:
-```python
-class TemperatureScaling(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.temperature = nn.Parameter(torch.ones(1))
+Temperature scaling digunakan untuk kalibrasi uncertainty dengan menggunakan learnable parameter yang menyesuaikan confidence estimates. Parameter temperature τ dipelajari selama training untuk mengoptimalkan kalibrasi antara predicted confidence dan actual accuracy.
 
-    def forward(self, logits):
-        return logits / self.temperature
+**Algoritma 4: Temperature Scaling Calibration**
+```
+Input: logits, temperature_parameter τ
+1. calibrated_logits ← logits / τ
+2. calibrated_probabilities ← Softmax(calibrated_logits)
+3. uncertainty_estimate ← Entropy(calibrated_probabilities)
+Output: calibrated_probabilities, uncertainty_estimate
 ```
 
 ### 3.3 Training Strategy
 
 #### 3.3.1 Multi-Component Loss Function
-```python
-L_total = w_recon * L_recon + w_perceptual * L_perceptual + w_uncertainty * L_uncertainty
-```
+Fungsi loss dirancang dengan tiga komponen yang saling melengkapi untuk mengoptimalkan kualitas rekonstruksi dan kalibrasi uncertainty. Komponen reconstruction loss mengukur perbedaan pixel-wise, perceptual loss mempertimbangkan kualitas visual, dan uncertainty regularization membantu kalibrasi estimates.
 
-Fungsi loss ini terdiri dari tiga komponen utama. L_recon merupakan MSE reconstruction loss yang mengukur perbedaan pixel-wise antara rekonstruksi dan target. L_perceptual adalah gradient-based perceptual loss yang mempertimbangkan kualitas visual dari perspektif human perception. L_uncertainty merupakan temperature regularization yang membantu kalibrasi uncertainty estimates.
+**Algoritma 5: Multi-Component Loss Computation**
+```
+Input: reconstruction, target, text_tokens, class_labels, epoch_progress
+1. L_recon ← MSE(reconstruction, target)
+2. grad_x_recon ← |∇_x reconstruction|, grad_y_recon ← |∇_y reconstruction|
+3. grad_x_target ← |∇_x target|, grad_y_target ← |∇_y target|
+4. L_perceptual ← MSE(grad_x_recon, grad_x_target) + MSE(grad_y_recon, grad_y_target)
+5. L_uncertainty ← MSE(predicted_uncertainty, target_uncertainty)
+6. w_recon ← 1.0
+7. w_perceptual ← 0.1 × (1 + epoch_progress)
+8. w_uncertainty ← 0.01 × (1 + 2 × epoch_progress)
+9. L_total ← w_recon × L_recon + w_perceptual × L_perceptual + w_uncertainty × L_uncertainty
+Output: L_total
+```
 
 #### 3.3.2 Data Augmentation
 Strategi data augmentation diimplementasikan dengan faktor 10× untuk meningkatkan robustness model dan mengatasi keterbatasan ukuran dataset. Augmentation dilakukan dengan variasi noise progresif, dimana noise injection pada sinyal fMRI berkisar antara 0.01 hingga 0.19 untuk mensimulasikan variabilitas natural dalam pengukuran fMRI. Feature dropout diterapkan dengan rate 2-11% untuk meningkatkan generalization capability. Signal scaling dengan faktor 0.9-1.1× digunakan untuk mensimulasikan variasi intensitas sinyal yang mungkin terjadi dalam kondisi real.
@@ -280,58 +307,25 @@ Lampiran A menyajikan kode implementasi lengkap untuk reproduksi penelitian. Lam
 
 ### Lampiran A: Detail Implementasi Teknis
 
-#### A.1 Arsitektur Model Lengkap
+#### A.1 Spesifikasi Arsitektur Model
 
-**Enhanced fMRI Encoder:**
-```python
-class Enhanced_fMRI_Encoder(nn.Module):
-    def __init__(self, input_dim=3092, hidden_dim=1024, output_dim=512):
-        super().__init__()
-        self.layers = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.LayerNorm(hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(hidden_dim, hidden_dim//2),
-            nn.LayerNorm(hidden_dim//2),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(hidden_dim//2, output_dim),
-            nn.LayerNorm(output_dim)
-        )
+**Enhanced fMRI Encoder Specification:**
+Arsitektur fMRI encoder menggunakan fully connected layers dengan konfigurasi sebagai berikut:
+- Input layer: 3092 neurons (dimensi sinyal fMRI)
+- Hidden layer 1: 1024 neurons dengan LayerNorm dan ReLU activation
+- Dropout layer 1: rate 0.3 untuk regularization
+- Hidden layer 2: 512 neurons dengan LayerNorm dan ReLU activation
+- Dropout layer 2: rate 0.2 untuk fine-tuning regularization
+- Output: 512-dimensional feature representation
 
-    def forward(self, x):
-        return self.layers(x)
-```
-
-**Improved Text Encoder:**
-```python
-class ImprovedTextEncoder(nn.Module):
-    def __init__(self, vocab_size=10000, embed_dim=512):
-        super().__init__()
-        self.embedding = nn.Embedding(vocab_size, embed_dim)
-        self.dropout = nn.Dropout(0.2)
-
-        encoder_layer = nn.TransformerEncoderLayer(
-            d_model=embed_dim,
-            nhead=8,
-            dropout=0.2,
-            norm_first=True,
-            batch_first=True
-        )
-        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=4)
-        self.pool = nn.AdaptiveAvgPool1d(1)
-        self.projection = nn.Linear(embed_dim, embed_dim)
-        self.norm = nn.LayerNorm(embed_dim)
-
-    def forward(self, tokens):
-        x = self.embedding(tokens)
-        x = self.dropout(x)
-        x = self.transformer(x)
-        x = self.pool(x.transpose(1, 2)).squeeze(-1)
-        x = self.projection(x)
-        return self.norm(x)
-```
+**Text Encoder Architecture:**
+Text encoder menggunakan transformer-based architecture dengan spesifikasi:
+- Embedding layer: vocabulary size 10,000, embedding dimension 512
+- Transformer encoder: 4 layers, 8 attention heads per layer
+- Dropout rate: 0.2 untuk semua layers
+- Pooling mechanism: Adaptive average pooling untuk fixed-size output
+- Output projection: Linear layer dengan LayerNorm untuk normalization
+- Final output: 512-dimensional semantic representation
 
 #### A.2 Uncertainty Quantification Implementation
 
