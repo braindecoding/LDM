@@ -15,7 +15,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{algorithm}
-\usepackage{algorithmic}
+\usepackage{algpseudocode}
+\usepackage{algorithmicx}
 \usepackage{xcolor}
 \usepackage{tikz}
 \usepackage{pgfplots}
@@ -51,7 +52,7 @@ $^*$Corresponding author: [email@university.edu]
 \input{discussion_conclusion}
 
 % References
-\bibliographystyle{nature}
+\bibliographystyle{plain}
 \bibliography{references}
 
 % Supplementary Information
@@ -64,15 +65,7 @@ $^*$Corresponding author: [email@university.edu]
 
 The complete model architecture consists of the following components with specific parameter counts:
 
-\begin{itemize}
-    \item \textbf{fMRI Encoder}: 2-layer MLP (3,092 → 1,024 → 512) with LayerNorm and dropout (0.3, 0.2)
-    \item \textbf{Text Encoder}: 4-layer Transformer (embed\_dim=512, nhead=8, dropout=0.2)
-    \item \textbf{Semantic Embedding}: Learnable embeddings (10 classes × 512 dimensions)
-    \item \textbf{Cross-Modal Attention}: Multi-head attention (8 heads, 512 dimensions)
-    \item \textbf{U-Net}: Encoder-decoder with skip connections (1→64→128→256→512→1024)
-    \item \textbf{VAE Components}: Encoder/decoder for latent space operations
-    \item \textbf{Temperature Parameter}: Single learnable scalar initialized to 1.0
-\end{itemize}
+The fMRI Encoder utilizes a 2-layer MLP architecture with progressive dimensionality reduction from 3,092 input features to 1,024 hidden units and finally to 512 output dimensions, incorporating LayerNorm and dropout regularization with rates of 0.3 and 0.2 respectively. The Text Encoder employs a 4-layer Transformer architecture with embedding dimension of 512, 8 attention heads, and dropout rate of 0.2. Semantic Embedding consists of learnable embeddings with 10 classes and 512 dimensions each. Cross-Modal Attention implements multi-head attention mechanism with 8 heads and 512 dimensions. The U-Net component features an encoder-decoder architecture with skip connections and progressive channel expansion from 1 to 64, 128, 256, 512, and finally 1024 channels. VAE Components include both encoder and decoder modules for latent space operations. The Temperature Parameter is implemented as a single learnable scalar initialized to 1.0.
 
 Total parameters: 58,247,321 (58.2M)
 
@@ -99,13 +92,8 @@ Temperature Init & [0.5, 2.0] & 1.0 & Low & ±2\% \\
 \subsubsection*{Cross-Validation Details}
 
 Stratified 5-fold cross-validation was performed with the following protocol:
-\begin{enumerate}
-    \item Dataset split maintaining digit class balance in each fold
-    \item Independent model training for each fold (150 epochs max)
-    \item Early stopping based on validation loss (patience=25)
-    \item Performance aggregation across folds with confidence intervals
-    \item Statistical significance testing using paired t-tests
-\end{enumerate}
+
+The dataset was split while maintaining digit class balance in each fold to ensure representative sampling across all validation sets. Independent model training was conducted for each fold with a maximum of 150 epochs per training session. Early stopping was implemented based on validation loss with a patience parameter of 25 epochs to prevent overfitting. Performance aggregation across folds was performed with confidence intervals calculated using bootstrap resampling. Statistical significance testing was conducted using paired t-tests to validate the robustness of performance improvements.
 
 \subsection*{Supplementary Results}
 

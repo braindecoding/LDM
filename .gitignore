@@ -173,3 +173,68 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# LaTeX compilation files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+*.lof
+*.lot
+*.lol
+*.idx
+*.ind
+*.ilg
+*.glo
+*.gls
+*.glg
+*.acn
+*.acr
+*.alg
+*.bcf
+*.run.xml
+*.figlist
+*.makefile
+*.fls
+*.fdb_latexmk
+*.dpth
+*.md5
+*.auxlock
+
+# LaTeX temporary files
+*~
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# LaTeX output directories
+latex_output/
+tex_output/
+
+# BibTeX files (keep .bib source files, ignore compiled)
+*.bst
+
+# LaTeX editor files
+*.latexmain
+*.sublime-*
+*.texpadtmp/
+
+# Specific to paper submission folder
+paper_submission/latex_source/*.aux
+paper_submission/latex_source/*.bbl
+paper_submission/latex_source/*.blg
+paper_submission/latex_source/*.log
+paper_submission/latex_source/*.out
+paper_submission/latex_source/*.toc
+paper_submission/latex_source/*.synctex.gz
+paper_submission/submission_files/*.aux
+paper_submission/submission_files/*.log
