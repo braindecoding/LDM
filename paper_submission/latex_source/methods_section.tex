@@ -134,7 +134,7 @@ Model yang kami usulkan mengintegrasikan tiga modalitas melalui kerangka kerja l
 \label{eq:multimodal}
 \end{equation}
 
-dimana $\mathbf{x}_{\text{fMRI}}$ adalah sinyal fMRI dari ROI visual cortex, $\mathbf{t}_{\text{text}}$ merepresentasikan embedding teks, $\mathbf{s}_{\text{semantic}}$ menunjukkan embedding kelas semantik, dan $\mathbf{y} \in \mathbb{R}^{28 \times 28}$ adalah gambar yang direkonstruksi.
+dimana dalam Persamaan~\ref{eq:multimodal}, $\mathbf{x}_{\text{fMRI}}$ adalah sinyal fMRI dari ROI visual cortex, $\mathbf{t}_{\text{text}}$ merepresentasikan embedding teks, $\mathbf{s}_{\text{semantic}}$ menunjukkan embedding kelas semantik, dan $\mathbf{y} \in \mathbb{R}^{28 \times 28}$ adalah gambar yang direkonstruksi.
 
 Arsitektur lengkap model multi-modal Brain LDM ditunjukkan dalam Gambar~\ref{fig:architecture_methods}. Diagram ini mengilustrasikan alur data dari input multi-modal hingga output rekonstruksi gambar, termasuk mekanisme atensi cross-modal dan kuantifikasi ketidakpastian.
 
@@ -154,7 +154,7 @@ Encoder fMRI mentransformasi sinyal neural menjadi representasi laten melalui ar
 \mathbf{z}_{\text{fMRI}} &= \text{ReLU}(\text{LayerNorm}(\mathbf{W}_2 \mathbf{h}_2 + \mathbf{b}_2)) \label{eq:fmri_encoder}
 \end{align}
 
-dimana $\mathbf{W}_1$ dan $\mathbf{W}_2$ adalah matriks bobot dengan dimensi yang sesuai untuk transformasi progresif, sedangkan $\mathbf{z}_{\text{fMRI}} \in \mathbb{R}^{512}$ merupakan representasi laten akhir dari sinyal fMRI.
+dimana dalam Persamaan~\ref{eq:fmri_encoder_h1}-\ref{eq:fmri_encoder}, $\mathbf{W}_1$ dan $\mathbf{W}_2$ adalah matriks bobot dengan dimensi yang sesuai untuk transformasi progresif, sedangkan $\mathbf{z}_{\text{fMRI}} \in \mathbb{R}^{512}$ merupakan representasi laten akhir dari sinyal fMRI.
 
 Arsitektur encoder fMRI dirancang berdasarkan prinsip dimensionality reduction yang progresif dengan regularisasi yang tepat. Pemilihan dimensi 1024 untuk hidden layer pertama didasarkan pada analisis principal component analysis (PCA) yang menunjukkan bahwa 95% varians data fMRI dapat dijelaskan oleh 1024 komponen utama. Dimensi output 512 dipilih untuk menyeimbangkan kapasitas representasi dengan efisiensi komputasi.
 
@@ -227,7 +227,7 @@ Proses difusi menggunakan arsitektur U-Net dengan skip connection dan injeksi ko
 \label{eq:unet}
 \end{equation}
 
-dimana $t$ merepresentasikan timestep difusi dan $\mathbf{z}_{\text{fused}}$ dari Persamaan~\ref{eq:cross_attention} menyediakan panduan kondisional multi-modal.
+dimana dalam Persamaan~\ref{eq:unet}, $t$ merepresentasikan timestep difusi dan $\mathbf{z}_{\text{fused}}$ dari Persamaan~\ref{eq:cross_attention} menyediakan panduan kondisional multi-modal.
 
 \subsection{Kuantifikasi Ketidakpastian}
 
@@ -239,7 +239,7 @@ Kami mengimplementasikan sampling Monte Carlo dropout untuk mengestimasi ketidak
 \label{eq:mc_dropout}
 \end{equation}
 
-dimana $\boldsymbol{\epsilon}_i \sim \mathcal{N}(0, 0.05^2 \mathbf{I})$ adalah noise tambahan dan $N = 30$ sampel digunakan untuk estimasi yang robust.
+dimana dalam Persamaan~\ref{eq:mc_dropout}, $\boldsymbol{\epsilon}_i \sim \mathcal{N}(0, 0.05^2 \mathbf{I})$ adalah noise tambahan dan $N = 30$ sampel digunakan untuk estimasi yang robust.
 
 \subsubsection{Estimasi Ketidakpastian}
 Ketidakpastian epistemik dan aleatorik dihitung berdasarkan hasil sampling Monte Carlo dari Persamaan~\ref{eq:mc_dropout}. Kedua jenis ketidakpastian ini diformulasikan dalam Persamaan~\ref{eq:epistemic_uncertainty} dan~\ref{eq:uncertainty_estimation}:
@@ -249,7 +249,7 @@ Ketidakpastian epistemik dan aleatorik dihitung berdasarkan hasil sampling Monte
 \sigma_{\text{aleatoric}}^2 &= \frac{1}{N} \sum_{i=1}^N \sigma_i^2(\mathbf{x}) \label{eq:uncertainty_estimation}
 \end{align}
 
-dimana $\bar{\mathbf{y}} = \frac{1}{N} \sum_{i=1}^N \mathbf{y}_i$ adalah rata-rata prediksi dan $\sigma_i^2(\mathbf{x})$ adalah varians aleatorik yang diprediksi oleh model.
+dimana dalam Persamaan~\ref{eq:epistemic_uncertainty} dan~\ref{eq:uncertainty_estimation}, $\bar{\mathbf{y}} = \frac{1}{N} \sum_{i=1}^N \mathbf{y}_i$ adalah rata-rata prediksi dan $\sigma_i^2(\mathbf{x})$ adalah varians aleatorik yang diprediksi oleh model.
 
 Prosedur lengkap estimasi ketidakpastian Monte Carlo dijelaskan dalam Algoritma~\ref{alg:uncertainty}.
 
@@ -284,7 +284,7 @@ p_{\text{calibrated}} = \text{softmax}\left(\frac{\mathbf{z}}{T}\right)
 \label{eq:temperature_scaling}
 \end{equation}
 
-dimana $T$ adalah parameter temperature yang dapat dipelajari, diinisialisasi pada 1.0 dan dioptimasi selama pelatihan untuk mencapai kalibrasi optimal.
+dimana dalam Persamaan~\ref{eq:temperature_scaling}, $T$ adalah parameter temperature yang dapat dipelajari, diinisialisasi pada 1.0 dan dioptimasi selama pelatihan untuk mencapai kalibrasi optimal.
 
 Proses lengkap kuantifikasi ketidakpastian ditunjukkan dalam Gambar~\ref{fig:uncertainty_process}. Diagram ini mengilustrasikan bagaimana Monte Carlo dropout, estimasi ketidakpastian epistemik dan aleatorik, serta temperature scaling bekerja secara terintegrasi untuk menghasilkan prediksi yang terkalibrasi.
 
@@ -368,7 +368,7 @@ Metrik semantic terdiri dari Classification Accuracy sebagai persentase digit ya
 \label{eq:mse}
 \end{equation}
 
-dimana $H$ dan $W$ adalah dimensi tinggi dan lebar gambar.
+dimana $H$ dan $W$ dalam Persamaan~\ref{eq:mse} adalah dimensi tinggi dan lebar gambar.
 
 \subsubsection{Kalibrasi Ketidakpastian}
 Kalibrasi ketidakpastian dievaluasi melalui beberapa metrik. Uncertainty-Error Correlation mengukur korelasi Pearson antara ketidakpastian prediksi dan error rekonstruksi. Calibration Ratio menghitung rasio error ketidakpastian rendah terhadap error ketidakpastian tinggi. Expected Calibration Error diformulasikan dalam Persamaan~\ref{eq:ece}:
@@ -378,7 +378,7 @@ Kalibrasi ketidakpastian dievaluasi melalui beberapa metrik. Uncertainty-Error C
 \label{eq:ece}
 \end{equation}
 
-dimana $B_m$ adalah bin ke-$m$, $n$ adalah total sampel, $\text{acc}(B_m)$ adalah akurasi dalam bin, dan $\text{conf}(B_m)$ adalah confidence rata-rata dalam bin.
+dimana dalam Persamaan~\ref{eq:ece}, $B_m$ adalah bin ke-$m$, $n$ adalah total sampel, $\text{acc}(B_m)$ adalah akurasi dalam bin, dan $\text{conf}(B_m)$ adalah confidence rata-rata dalam bin.
 
 \subsection{Detail Implementasi}
 
@@ -407,7 +407,7 @@ Kompleksitas temporal model dapat dianalisis per komponen:
 \text{U-Net:} \quad &\mathcal{O}(H \times W \times C \times K^2 \times n_{layers}) \label{eq:complexity_unet}
 \end{align}
 
-dimana $L$ adalah panjang sequence teks, $H \times W$ adalah dimensi gambar, $C$ adalah jumlah channel, dan $K$ adalah kernel size.
+dimana dalam Persamaan~\ref{eq:complexity_fmri}-\ref{eq:complexity_unet}, $L$ adalah panjang sequence teks, $H \times W$ adalah dimensi gambar, $C$ adalah jumlah channel, dan $K$ adalah kernel size.
 
 \subsubsection{Kompleksitas Spasial}
 Memory requirement untuk training dapat dihitung sebagai:
