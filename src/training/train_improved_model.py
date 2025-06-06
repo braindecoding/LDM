@@ -8,9 +8,24 @@ import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from data_loader import load_fmri_data
-from improved_brain_ldm import ImprovedBrainLDM, create_digit_captions, tokenize_captions
+import sys
+sys.path.append('..')
+from data.data_loader import load_fmri_data
+from models.improved_brain_ldm import ImprovedBrainLDM, create_digit_captions, tokenize_captions
 import time
+import random
+
+def set_seed(seed=42):
+    """Set random seeds for reproducibility."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    print(f"🎲 Random seed set to: {seed}")
 
 def improved_fmri_normalization(fmri_data):
     """Improved fMRI normalization with outlier handling."""
@@ -110,12 +125,15 @@ def create_enhanced_dataloader_v2(loader, batch_size=4, augment_factor=10):
     
     return dataloader
 
-def train_improved_model(epochs=150, batch_size=4, learning_rate=8e-5, 
+def train_improved_model(epochs=150, batch_size=4, learning_rate=8e-5,
                         save_name="improved_v1"):
     """Train the improved model with enhanced techniques."""
     print(f"🚀 Training Improved Brain LDM")
     print("=" * 40)
-    
+
+    # Set random seed for reproducibility
+    set_seed(42)
+
     device = 'cpu'
     
     # Load data

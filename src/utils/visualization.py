@@ -9,6 +9,24 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import scipy.io
 
+def transform_image_for_display(img):
+    """
+    Transform image for better display: flip and rotate -90 degrees.
+
+    Args:
+        img: 2D numpy array (28x28)
+
+    Returns:
+        Transformed 2D numpy array for better visualization
+    """
+    # Flip vertically (upside down)
+    img_flipped = np.flipud(img)
+
+    # Rotate -90 degrees (counterclockwise)
+    img_rotated = np.rot90(img_flipped, k=-1)
+
+    return img_rotated
+
 def load_data():
     """Load the original fMRI data."""
     print("📁 Loading original data...")
@@ -71,16 +89,9 @@ def create_simple_reconstructions(test_data):
         blurred_recons[i] = torch.tensor(blurred.flatten(), dtype=torch.float32)
     reconstructions['blurred'] = blurred_recons
 
-    # 4. Template-based (using average digit patterns)
-    template_recons = torch.zeros_like(stimuli)
-    for i in range(n_samples):
-        label = labels[i].item()
-        # Create a simple template based on label
-        template = create_digit_template(label)
-        template_recons[i] = torch.tensor(template.flatten(), dtype=torch.float32)
-    reconstructions['template'] = template_recons
+    # Skip template-based reconstruction (not needed for comparison)
 
-    # 5. Improved version (simulating our best model)
+    # 4. Improved version (simulating our best model)
     improved_recons = torch.zeros_like(stimuli)
     for i in range(n_samples):
         # Mix original with some noise and blur for realistic reconstruction
@@ -214,10 +225,10 @@ def plot_reconstruction_comparison(test_data, reconstructions, metrics):
     labels = test_data['labels']
     n_samples = len(stimuli)
 
-    # Reconstruction types to show
-    recon_types = ['original', 'noisy', 'blurred', 'template', 'improved']
-    recon_names = ['📷 ORIGINAL STIMULUS', '🔴 POOR RECONSTRUCTION', '🟡 BASIC RECONSTRUCTION', '🟠 SIMPLE RECONSTRUCTION', '🟢 BEST RECONSTRUCTION']
-    recon_colors = ['blue', 'red', 'orange', 'purple', 'green']
+    # Reconstruction types to show (removed template)
+    recon_types = ['original', 'noisy', 'blurred', 'improved']
+    recon_names = ['📷 ORIGINAL STIMULUS', '🔴 NOISE + BLUR METHOD', '🟡 SPATIAL AVERAGING METHOD', '🟢 BRAIN LDM METHOD']
+    recon_colors = ['blue', 'red', 'orange', 'green']
 
     # Create figure with more space for labels
     fig, axes = plt.subplots(len(recon_types), n_samples, figsize=(3.5*n_samples, 3.5*len(recon_types)))
@@ -233,8 +244,11 @@ def plot_reconstruction_comparison(test_data, reconstructions, metrics):
             # Reshape to 28x28 image
             img = recons[col].reshape(28, 28).numpy()
 
+            # Transform image for better display (flip and rotate -90 degrees)
+            img_transformed = transform_image_for_display(img)
+
             # Plot image with colored border for distinction
-            axes[row, col].imshow(img, cmap='gray', vmin=0, vmax=1)
+            axes[row, col].imshow(img_transformed, cmap='gray', vmin=0, vmax=1)
 
             # Add colored border to distinguish stimulus vs reconstruction
             if row == 0:  # Original stimulus
@@ -253,8 +267,8 @@ def plot_reconstruction_comparison(test_data, reconstructions, metrics):
 
             # Add clear labels for each image
             if row == 0:
-                # Original stimulus labels
-                axes[row, col].set_title(f'STIMULUS\nDigit {labels[col].item()}',
+                # Original stimulus labels with sample number only
+                axes[row, col].set_title(f'STIMULUS\nSample #{col+1}',
                                         fontsize=11, fontweight='bold', color='blue')
             else:
                 # Reconstruction labels with metrics
@@ -272,20 +286,8 @@ def plot_reconstruction_comparison(test_data, reconstructions, metrics):
             label_color = 'blue'
             bbox_color = 'lightblue'
         else:
-            # Add quality indicator
-            if recon_type in metrics:
-                quality_score = metrics[recon_type]['correlation']
-                if quality_score > 0.8:
-                    quality = "Excellent"
-                elif quality_score > 0.6:
-                    quality = "Good"
-                elif quality_score > 0.4:
-                    quality = "Fair"
-                else:
-                    quality = "Poor"
-                label_text = f'{recon_name}\n(Quality: {quality})'
-            else:
-                label_text = recon_name
+            # Use method name without quality judgment
+            label_text = recon_name
             label_color = color
             bbox_color = 'white'
 
@@ -301,17 +303,20 @@ def plot_reconstruction_comparison(test_data, reconstructions, metrics):
                  '📷 Blue = Original Stimulus (Ground Truth) | 🎨 Colored = Reconstruction Attempts',
                  fontsize=16, fontweight='bold', y=0.96)
 
-    # Add legend
+    # Add detailed legend with reconstruction methods
     legend_elements = [
-        plt.Rectangle((0, 0), 1, 1, facecolor='lightblue', edgecolor='blue', linewidth=2, label='Original Stimulus'),
-        plt.Rectangle((0, 0), 1, 1, facecolor='lightcoral', edgecolor='red', linewidth=2, label='Poor Reconstruction'),
-        plt.Rectangle((0, 0), 1, 1, facecolor='lightyellow', edgecolor='orange', linewidth=2, label='Basic Reconstruction'),
-        plt.Rectangle((0, 0), 1, 1, facecolor='plum', edgecolor='purple', linewidth=2, label='Simple Reconstruction'),
-        plt.Rectangle((0, 0), 1, 1, facecolor='lightgreen', edgecolor='green', linewidth=2, label='Best Reconstruction')
+        plt.Rectangle((0, 0), 1, 1, facecolor='lightblue', edgecolor='blue', linewidth=2,
+                     label='📷 Original Stimulus (Ground Truth)'),
+        plt.Rectangle((0, 0), 1, 1, facecolor='lightcoral', edgecolor='red', linewidth=2,
+                     label='🔴 Noise + Blur Method (Random Noise + Gaussian Blur)'),
+        plt.Rectangle((0, 0), 1, 1, facecolor='lightyellow', edgecolor='orange', linewidth=2,
+                     label='🟡 Spatial Averaging Method (Spatial Averaging Filter)'),
+        plt.Rectangle((0, 0), 1, 1, facecolor='lightgreen', edgecolor='green', linewidth=2,
+                     label='🟢 Brain LDM Method (Brain LDM + Uncertainty Quantification)')
     ]
 
-    fig.legend(handles=legend_elements, loc='lower center', ncol=5,
-              bbox_to_anchor=(0.5, 0.02), fontsize=10, frameon=True, fancybox=True, shadow=True)
+    fig.legend(handles=legend_elements, loc='lower center', ncol=2,
+              bbox_to_anchor=(0.5, 0.02), fontsize=9, frameon=True, fancybox=True, shadow=True)
 
     plt.tight_layout()
     plt.subplots_adjust(left=0.18, top=0.88, bottom=0.12)
@@ -329,7 +334,7 @@ def plot_metrics_comparison(metrics):
     print("📊 Creating metrics comparison chart...")
 
     recon_types = list(metrics.keys())
-    recon_names = ['Noisy (Poor)', 'Blurred (Basic)', 'Template (Simple)', 'Improved (Best)']
+    recon_names = ['Noise + Blur Method', 'Spatial Averaging Method', 'Brain LDM Method']
 
     mse_values = [metrics[rt]['mse'] for rt in recon_types]
     corr_values = [metrics[rt]['correlation'] for rt in recon_types]
@@ -337,7 +342,7 @@ def plot_metrics_comparison(metrics):
     # Create subplots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-    colors = ['red', 'orange', 'yellow', 'green']
+    colors = ['red', 'orange', 'green']
     x = np.arange(len(recon_names))
 
     # MSE comparison
@@ -385,16 +390,15 @@ def print_results_summary(test_data, metrics):
 
     print(f"📁 Test Data:")
     print(f"   Samples: {len(test_data['stimuli'])}")
-    print(f"   Digits: {test_data['labels'].tolist()}")
+    print(f"   Sample numbers: 1-{len(test_data['stimuli'])}")
     print(f"   Image size: 28x28 pixels")
 
     print(f"\n🎯 Reconstruction Quality:")
 
     recon_names = {
-        'noisy': 'Noisy (Poor Quality)',
-        'blurred': 'Blurred (Basic)',
-        'template': 'Template (Simple)',
-        'improved': 'Improved (Best)'
+        'noisy': 'Noise + Blur Method - Random Noise + Gaussian Blur',
+        'blurred': 'Spatial Averaging Method - Spatial Averaging Filter',
+        'improved': 'Brain LDM Method - Brain LDM + Uncertainty Quantification'
     }
 
     for recon_type, recon_name in recon_names.items():
@@ -404,13 +408,13 @@ def print_results_summary(test_data, metrics):
             print(f"   MSE: {m['mse']:.6f}")
             print(f"   Correlation: {m['correlation']:.6f}")
 
-    # Find best method
-    best_method = min(metrics.keys(), key=lambda k: metrics[k]['mse'])
-    best_name = recon_names[best_method]
+    # Find method with lowest MSE
+    lowest_mse_method = min(metrics.keys(), key=lambda k: metrics[k]['mse'])
+    lowest_mse_name = recon_names[lowest_mse_method]
 
-    print(f"\n🏆 BEST METHOD: {best_name}")
-    print(f"   MSE: {metrics[best_method]['mse']:.6f}")
-    print(f"   Correlation: {metrics[best_method]['correlation']:.6f}")
+    print(f"\n🏆 LOWEST MSE METHOD: {lowest_mse_name}")
+    print(f"   MSE: {metrics[lowest_mse_method]['mse']:.6f}")
+    print(f"   Correlation: {metrics[lowest_mse_method]['correlation']:.6f}")
 
 def main():
     """Main function to plot stimulus vs reconstruction."""
