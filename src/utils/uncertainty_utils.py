@@ -95,7 +95,7 @@ def create_diagnostic_visualizations():
     print("=" * 40)
     
     # Load model and data
-    device = 'cpu'
+    device = 'cuda'
     
     # Try to load any available model
     model_paths = [

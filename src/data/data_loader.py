@@ -17,8 +17,8 @@ class FMRIDataLoader:
     """Simple data loader for fMRI and stimulus data."""
     
     def __init__(self, 
-                 data_path: str = "data/digit69_28x28.mat",
-                 device: str = 'cpu',
+                 data_path: str = "../data/digit69_28x28.mat",
+                 device: str = 'cuda',
                  normalize_stimuli: bool = True,
                  normalize_fmri: bool = True):
         """
@@ -232,7 +232,7 @@ class FMRIDataLoader:
             batch_size=batch_size,
             shuffle=shuffle,
             num_workers=num_workers,
-            pin_memory=True if self.device != 'cpu' else False
+            pin_memory=True if self.device != 'cuda' else False
         )
 
 
@@ -267,7 +267,7 @@ class FMRIDataset(Dataset):
 
 
 # Convenience function
-def load_fmri_data(data_path: str = "data/digit69_28x28.mat", **kwargs) -> FMRIDataLoader:
+def load_fmri_data(data_path: str = "../../data/digit69_28x28.mat", **kwargs) -> FMRIDataLoader:
     """Load fMRI data with simple interface."""
     return FMRIDataLoader(data_path=data_path, **kwargs)
 

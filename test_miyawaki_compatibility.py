@@ -24,7 +24,7 @@ def test_miyawaki_compatibility():
     try:
         miyawaki_loader = FMRIDataLoader(
             data_path="data/miyawaki_structured_28x28.mat",
-            device='cpu',
+            device='cuda',
             normalize_stimuli=True,
             normalize_fmri=True
         )
@@ -51,7 +51,7 @@ def test_miyawaki_compatibility():
     try:
         current_loader = FMRIDataLoader(
             data_path="data/digit69_28x28.mat",
-            device='cpu'
+            device='cuda'
         )
         
         # Compare dimensions

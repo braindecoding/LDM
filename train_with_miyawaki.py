@@ -122,7 +122,7 @@ def train_miyawaki_model(epochs=100, batch_size=4, learning_rate=5e-5, save_name
     # Set random seed
     set_seed(42)
     
-    device = 'cpu'
+    device = 'cuda'
     
     # Load Miyawaki data
     print("📁 Loading Miyawaki dataset...")

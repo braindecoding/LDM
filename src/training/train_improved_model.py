@@ -134,7 +134,7 @@ def train_improved_model(epochs=150, batch_size=4, learning_rate=8e-5,
     # Set random seed for reproducibility
     set_seed(42)
 
-    device = 'cpu'
+    device = 'cuda'
     
     # Load data
     loader = load_fmri_data()
@@ -187,8 +187,10 @@ def train_improved_model(epochs=150, batch_size=4, learning_rate=8e-5,
             'perceptual_loss': [],
             'uncertainty_reg': []
         }
+        print(f"Loop epoch {epoch} dataloader {enumerate(dataloader)}")
         
         for batch_idx, (fmri, stimuli, labels, text_tokens) in enumerate(dataloader):
+            print(f"loop batch {batch_idx}")
             fmri = fmri.to(device)
             stimuli = stimuli.to(device)
             labels = labels.to(device)
