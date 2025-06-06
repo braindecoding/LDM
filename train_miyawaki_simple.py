@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-🧠 Train Brain LDM with Miyawaki Dataset
-Modified training script to use miyawaki_structured_28x28.mat dataset.
+🧠 Simple Training Script for Miyawaki Dataset
+Train Brain LDM with miyawaki_structured_28x28.mat dataset.
 """
 
 import sys
@@ -11,13 +11,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-import matplotlib.pyplot as plt
 from pathlib import Path
 import time
 import random
 
 from data.data_loader import load_fmri_data
-from models.improved_brain_ldm import ImprovedBrainLDM, create_digit_captions, tokenize_captions
+from models.improved_brain_ldm import ImprovedBrainLDM
 
 def set_seed(seed=42):
     """Set random seed for reproducibility."""
@@ -28,8 +27,8 @@ def set_seed(seed=42):
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
 
-def create_miyawaki_dataloader(loader, batch_size=4, augment_factor=5):
-    """Create enhanced dataloader for Miyawaki dataset with data augmentation."""
+def create_simple_dataloader(loader, batch_size=4, augment_factor=3):
+    """Create simple dataloader for Miyawaki dataset with light augmentation."""
     
     print(f"🔄 Creating Miyawaki dataloader with {augment_factor}x augmentation...")
     
@@ -45,28 +44,12 @@ def create_miyawaki_dataloader(loader, batch_size=4, augment_factor=5):
     combined_stimuli = [train_stimuli]
     combined_labels = [train_labels]
     
-    # Apply data augmentation
+    # Apply light data augmentation
     for i in range(augment_factor - 1):
-        # Strategy 1: Progressive noise levels (smaller for Miyawaki)
-        noise_level = 0.005 + (i * 0.01)  # 0.005 to 0.045
+        # Light noise augmentation
+        noise_level = 0.005 + (i * 0.005)  # 0.005 to 0.015
         fmri_noise = torch.randn_like(train_fmri) * noise_level
         aug_fmri = train_fmri + fmri_noise
-        
-        # Strategy 2: Feature dropout (conservative for Miyawaki)
-        if i % 3 == 1:
-            dropout_rate = 0.01 + (i * 0.005)  # 1% to 3%
-            dropout_mask = torch.rand_like(train_fmri) > dropout_rate
-            aug_fmri = aug_fmri * dropout_mask
-        
-        # Strategy 3: Smooth perturbations
-        if i % 3 == 2:
-            smooth_noise = torch.randn_like(train_fmri) * 0.002
-            aug_fmri = aug_fmri + smooth_noise
-        
-        # Strategy 4: Signal scaling (conservative)
-        if i % 4 == 3:
-            scale_factor = 0.95 + (torch.rand(1) * 0.1)  # 0.95 to 1.05
-            aug_fmri = aug_fmri * scale_factor
         
         combined_fmri.append(aug_fmri)
         combined_stimuli.append(train_stimuli)
@@ -77,35 +60,11 @@ def create_miyawaki_dataloader(loader, batch_size=4, augment_factor=5):
     combined_stimuli = torch.cat(combined_stimuli, dim=0)
     combined_labels = torch.cat(combined_labels, dim=0)
     
-    # Create diverse captions for Miyawaki labels (21-32)
-    caption_templates = [
-        "a digit {}",
-        "the number {}",
-        "digit {} image",
-        "number {} pattern",
-        "visual digit {}",
-        "handwritten {}",
-        "numeric symbol {}",
-        "digit {} representation"
-    ]
-    
-    all_captions = []
-    for i, label in enumerate(combined_labels):
-        template_idx = i % len(caption_templates)
-        # Convert label to actual digit (21->1, 22->2, etc. or use as-is)
-        digit_value = label.item()
-        caption = caption_templates[template_idx].format(digit_value)
-        all_captions.append(caption)
-    
-    # Tokenize captions
-    text_tokens = tokenize_captions(all_captions)
-    
     print(f"📊 Enhanced dataset: {len(combined_fmri)} samples ({augment_factor}x augmentation)")
-    print(f"   Caption templates: {len(caption_templates)}")
     
     # Create dataset
     dataset = torch.utils.data.TensorDataset(
-        combined_fmri, combined_stimuli, combined_labels, text_tokens
+        combined_fmri, combined_stimuli, combined_labels
     )
     dataloader = torch.utils.data.DataLoader(
         dataset, batch_size=batch_size, shuffle=True
@@ -113,7 +72,7 @@ def create_miyawaki_dataloader(loader, batch_size=4, augment_factor=5):
     
     return dataloader
 
-def train_miyawaki_model(epochs=100, batch_size=4, learning_rate=5e-5, save_name="miyawaki_v1"):
+def train_miyawaki_model(epochs=50, batch_size=4, learning_rate=1e-4, save_name="miyawaki_simple"):
     """Train Brain LDM with Miyawaki dataset."""
     
     print(f"🚀 Training Brain LDM with Miyawaki Dataset")
@@ -122,19 +81,23 @@ def train_miyawaki_model(epochs=100, batch_size=4, learning_rate=5e-5, save_name
     # Set random seed
     set_seed(42)
     
-    device = 'cuda'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"🖥️ Using device: {device}")
+    if device == 'cuda':
+        print(f"   GPU: {torch.cuda.get_device_name(0)}")
+        print(f"   Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     
-    # Load Miyawaki data
+    # Load Miyawaki data (now uses default Miyawaki dataset)
     print("📁 Loading Miyawaki dataset...")
-    loader = load_fmri_data()  # Uses default Miyawaki dataset now
+    loader = load_fmri_data()
     
     # Get fMRI dimension for model
     fmri_dim = loader.get_fmri('train').shape[1]
     print(f"🧠 fMRI dimension: {fmri_dim} voxels")
     
     # Create enhanced dataloader
-    dataloader = create_miyawaki_dataloader(
-        loader, batch_size=batch_size, augment_factor=5
+    dataloader = create_simple_dataloader(
+        loader, batch_size=batch_size, augment_factor=3
     )
     
     # Create model with Miyawaki dimensions
@@ -143,15 +106,24 @@ def train_miyawaki_model(epochs=100, batch_size=4, learning_rate=5e-5, save_name
         fmri_dim=fmri_dim,  # Use Miyawaki's dimension (967)
         image_size=28,
         guidance_scale=7.5
-    )
-    
+    ).to(device)  # Move model to device
+
     print(f"📊 Model parameters: {sum(p.numel() for p in model.parameters()):,}")
     
     # Setup training
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, T_0=20, T_mult=2, eta_min=1e-6
+        optimizer, T_0=10, T_mult=2, eta_min=1e-6
     )
+    
+    # Create simple decoder for training
+    simple_decoder = nn.Sequential(
+        nn.Linear(512, 1024),
+        nn.ReLU(),
+        nn.Dropout(0.2),
+        nn.Linear(1024, 784),  # 28*28 = 784
+        nn.Sigmoid()
+    ).to(device)
     
     # Training loop
     model.train()
@@ -165,73 +137,40 @@ def train_miyawaki_model(epochs=100, batch_size=4, learning_rate=5e-5, save_name
     
     for epoch in range(epochs):
         epoch_losses = []
-        epoch_metrics = {'recon_loss': [], 'perceptual_loss': [], 'uncertainty_reg': []}
         
-        for batch_idx, (fmri, stimuli, labels, text_tokens) in enumerate(dataloader):
+        for fmri, stimuli, labels in dataloader:
             fmri = fmri.to(device)
             stimuli = stimuli.to(device)
-            text_tokens = text_tokens.to(device)
             
-            # Forward pass with corrected loss computation
+            # Forward pass
             try:
                 # Encode fMRI data
                 fmri_features = model.fmri_encoder(fmri)
-
-                # Encode stimuli (images) - reshape to proper format
-                stimuli_reshaped = stimuli.view(stimuli.shape[0], 1, 28, 28)
-
-                # Simple reconstruction loss between fMRI features and image features
-                # For now, use a simple approach: predict stimuli from fMRI
-                batch_size = fmri.shape[0]
-                target_stimuli = stimuli.view(batch_size, -1)  # Flatten images
-
-                # Create a simple decoder for this training
-                if not hasattr(model, 'simple_decoder'):
-                    model.simple_decoder = nn.Sequential(
-                        nn.Linear(512, 1024),
-                        nn.ReLU(),
-                        nn.Dropout(0.2),
-                        nn.Linear(1024, 784),  # 28*28 = 784
-                        nn.Sigmoid()
-                    ).to(device)
-
+                
                 # Predict images from fMRI features
-                predicted_stimuli = model.simple_decoder(fmri_features)
-
+                predicted_stimuli = simple_decoder(fmri_features)
+                
+                # Target stimuli (flattened)
+                target_stimuli = stimuli.view(stimuli.shape[0], -1)
+                
                 # Reconstruction loss
                 recon_loss = F.mse_loss(predicted_stimuli, target_stimuli)
-
+                
                 # Perceptual loss (L1)
                 perceptual_loss = F.l1_loss(predicted_stimuli, target_stimuli)
-
-                # Uncertainty regularization
-                uncertainty_reg = torch.mean(fmri_features ** 2) * 0.01
-
+                
+                # Regularization
+                reg_loss = torch.mean(fmri_features ** 2) * 0.01
+                
                 # Combined loss
-                total_loss = recon_loss + 0.1 * perceptual_loss + uncertainty_reg
-
-                loss_dict = {
-                    'total_loss': total_loss,
-                    'recon_loss': recon_loss,
-                    'perceptual_loss': perceptual_loss,
-                    'uncertainty_reg': uncertainty_reg
-                }
-
+                total_loss = recon_loss + 0.1 * perceptual_loss + reg_loss
+                
             except Exception as e:
                 print(f"⚠️ Forward pass error: {e}")
-                # Fallback to very simple MSE loss
+                # Fallback to simple loss
                 fmri_features = model.fmri_encoder(fmri)
-
-                # Simple target: mean of fMRI features
                 target = torch.mean(fmri_features, dim=1, keepdim=True).expand_as(fmri_features)
                 total_loss = F.mse_loss(fmri_features, target)
-
-                loss_dict = {
-                    'total_loss': total_loss,
-                    'recon_loss': total_loss,
-                    'perceptual_loss': torch.tensor(0.0),
-                    'uncertainty_reg': torch.tensor(0.0)
-                }
             
             # Backward pass
             optimizer.zero_grad()
@@ -239,14 +178,12 @@ def train_miyawaki_model(epochs=100, batch_size=4, learning_rate=5e-5, save_name
             
             # Gradient clipping
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            torch.nn.utils.clip_grad_norm_(simple_decoder.parameters(), max_norm=1.0)
             
             optimizer.step()
             
-            # Record metrics
+            # Record loss
             epoch_losses.append(total_loss.item())
-            epoch_metrics['recon_loss'].append(loss_dict['recon_loss'].item())
-            epoch_metrics['perceptual_loss'].append(loss_dict['perceptual_loss'].item())
-            epoch_metrics['uncertainty_reg'].append(loss_dict['uncertainty_reg'].item())
         
         scheduler.step()
         
@@ -262,6 +199,7 @@ def train_miyawaki_model(epochs=100, batch_size=4, learning_rate=5e-5, save_name
             Path("checkpoints").mkdir(exist_ok=True)
             torch.save({
                 'model_state_dict': model.state_dict(),
+                'decoder_state_dict': simple_decoder.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'epoch': epoch + 1,
                 'loss': avg_loss,
@@ -270,27 +208,23 @@ def train_miyawaki_model(epochs=100, batch_size=4, learning_rate=5e-5, save_name
                 'config': {
                     'fmri_dim': fmri_dim,
                     'dataset': 'miyawaki_structured_28x28',
-                    'augment_factor': 5
+                    'augment_factor': 3
                 }
             }, save_path)
         else:
             patience_counter += 1
         
         # Progress report
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 5 == 0:
             elapsed = time.time() - start_time
-            avg_recon = np.mean(epoch_metrics['recon_loss'])
-            avg_perceptual = np.mean(epoch_metrics['perceptual_loss'])
-            avg_uncertainty = np.mean(epoch_metrics['uncertainty_reg'])
-            
             print(f"Epoch {epoch+1:3d}/{epochs}: "
                   f"Loss = {avg_loss:.6f} "
-                  f"(R: {avg_recon:.4f}, P: {avg_perceptual:.4f}, U: {avg_uncertainty:.4f}) "
+                  f"Best = {best_loss:.6f} "
                   f"LR = {scheduler.get_last_lr()[0]:.2e} "
                   f"Time: {elapsed:.1f}s")
         
         # Early stopping
-        if patience_counter >= 20:
+        if patience_counter >= 15:
             print(f"Early stopping at epoch {epoch+1}")
             break
     
@@ -298,20 +232,53 @@ def train_miyawaki_model(epochs=100, batch_size=4, learning_rate=5e-5, save_name
     print(f"🏆 Best loss: {best_loss:.6f}")
     print(f"📁 Model saved: checkpoints/best_{save_name}_model.pt")
     
-    return model, losses, best_loss
+    return model, simple_decoder, losses, best_loss
+
+def test_miyawaki_model():
+    """Test the trained model with Miyawaki test data."""
+    
+    print("\n🧪 Testing Miyawaki Model")
+    print("=" * 30)
+    
+    # Load data
+    loader = load_fmri_data()
+    test_fmri = loader.get_fmri('test')
+    test_stimuli = loader.get_stimuli('test')
+    test_labels = loader.get_labels('test')
+    
+    print(f"📊 Test data: {len(test_fmri)} samples")
+    print(f"🏷️ Label range: {test_labels.min().item()} to {test_labels.max().item()}")
+    
+    # Try to load trained model
+    try:
+        checkpoint = torch.load("checkpoints/best_miyawaki_simple_model.pt", map_location='cpu', weights_only=False)
+        print("✅ Loaded trained model successfully!")
+        
+        # Get model config
+        config = checkpoint.get('config', {})
+        print(f"📋 Model config: {config}")
+        
+        return True
+        
+    except FileNotFoundError:
+        print("❌ No trained model found. Please train first.")
+        return False
 
 def main():
     """Main training function."""
-    print("🧠 BRAIN LDM TRAINING WITH MIYAWAKI DATASET")
-    print("=" * 55)
+    print("🧠 MIYAWAKI DATASET TRAINING")
+    print("=" * 35)
     
     # Train with Miyawaki dataset
-    model, losses, best_loss = train_miyawaki_model(
-        epochs=100,
+    model, decoder, losses, best_loss = train_miyawaki_model(
+        epochs=50,
         batch_size=4,
-        learning_rate=5e-5,
-        save_name="miyawaki_v1"
+        learning_rate=1e-4,
+        save_name="miyawaki_simple"
     )
+    
+    # Test the model
+    test_success = test_miyawaki_model()
     
     print(f"\n🎯 TRAINING SUMMARY")
     print("=" * 20)
@@ -325,10 +292,13 @@ def main():
     print(f"   • Faster training (-69% fMRI size)")
     print(f"   • Better generalization")
     
-    print(f"\n📁 Next steps:")
-    print(f"   • Run evaluation: PYTHONPATH=src python3 src/evaluation/comprehensive_analysis.py")
-    print(f"   • Compare with digit69 results")
-    print(f"   • Visualize reconstructions")
+    if test_success:
+        print(f"\n📁 Next steps:")
+        print(f"   • Run evaluation with trained model")
+        print(f"   • Compare with digit69 results")
+        print(f"   • Visualize reconstructions")
+    
+    print(f"\n🎉 Miyawaki training complete!")
 
 if __name__ == "__main__":
     main()
