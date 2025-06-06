@@ -238,3 +238,91 @@ paper_submission/latex_source/*.toc
 paper_submission/latex_source/*.synctex.gz
 paper_submission/submission_files/*.aux
 paper_submission/submission_files/*.log
+
+# Brain LDM Specific Files
+
+# Large data files (keep structure, ignore content)
+data/*.mat
+data/*.h5
+data/*.hdf5
+data/raw/
+data/processed/
+!data/README.md
+
+# Model checkpoints (selective keeping)
+checkpoints/*.pt
+!checkpoints/README.md
+!checkpoints/best_*_model.pt
+
+# Results and visualizations
+results/*.png
+results/*.jpg
+results/*.pdf
+results/*.svg
+results/figures/
+results/tables/
+results/logs/
+!results/README.md
+
+# Experiment tracking
+wandb/
+mlruns/
+tensorboard_logs/
+runs/
+
+# Temporary and cache files
+temp/
+tmp/
+.cache/
+cache/
+.nv/
+.pytorch_jit_cache/
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+*.code-workspace
+
+# Jupyter notebooks (keep source, ignore outputs)
+*.ipynb_checkpoints/
+
+# MATLAB temporary files
+*.asv
+*.m~
+
+# Configuration with sensitive data
+config/secrets.yaml
+config/private.yaml
+.env.local
+.env.production
+
+# Large model files
+*.bin
+*.safetensors
+models/large/
+
+# Profiling and debugging
+*.prof
+*.profile
+*.dmp
+core.*
+
+# Research specific
+experiments/private/
+analysis/draft/
+notebooks/scratch/
+
+# Virtual environments
+brain_ldm_env/
+venv*/
+env*/
+ENV*/
