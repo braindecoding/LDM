@@ -1,0 +1,18 @@
+{
+  "dataset_name": "miyawaki_structured_28x28",
+  "data_path": "data/miyawaki_structured_28x28.mat",
+  "fmri_dim": 967,
+  "image_size": 28,
+  "num_classes": 12,
+  "train_samples": 226,
+  "test_samples": 26,
+  "label_range": [
+    21,
+    32
+  ],
+  "data_types": {
+    "stimuli": "torch.float32",
+    "fmri": "torch.float32",
+    "labels": "torch.int64"
+  }
+}
